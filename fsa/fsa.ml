@@ -72,14 +72,14 @@ let str_to_char_lst str =
 
 let sym_to_char = function
   | Sym x -> x
-  (*| y -> raise (Symbol_not_recognised y)*)
+(*| y -> raise (Symbol_not_recognised y)*)
 
 let format_input str =
   str |> str_to_char_lst |> make_alphabet
 
 
 (* ************* *
-  execution logic
+   execution logic
  * ************* *)
 
 (* check if a transition is allowed *)
