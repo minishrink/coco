@@ -103,20 +103,20 @@ let next_state fsa st sym =
   (* check symbol belongs to FSA alphabet *)
   if List.mem sym fsa.alphabet
   then sym
-      |> next_st_uid st
-      |> next_state_from_uid fsa
+       |> next_st_uid st
+       |> next_state_from_uid fsa
   else raise (Symbol_not_recognised sym)
 
 (* iterate through input string and return result *)
 let trace_input fsa str =
-(* input string -> char list -> symbol list *)
+  (* input string -> char list -> symbol list *)
   let lst = str |> str_to_char_lst |> make_alphabet in
   let rec run st lst = (* match sym_lst *)
     if is_final fsa st
     then Accepted
     else
       match lst with
-        | a::b -> run (next_state fsa st a) b
-        | [] -> Rejected
+      | a::b -> run (next_state fsa st a) b
+      | [] -> Rejected
   in try run fsa.initial lst with _ -> Rejected
 
