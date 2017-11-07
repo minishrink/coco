@@ -78,9 +78,9 @@ let format_input str =
   str |> str_to_char_lst |> make_alphabet
 
 
-(* ************* *
+(* *************** *
    execution logic
- * ************* *)
+ * *************** *)
 
 (* check if a transition is allowed *)
 let valid_state fsa uid =
