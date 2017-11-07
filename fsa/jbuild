@@ -1,0 +1,8 @@
+(executable
+  (
+    (name fsa_example)
+    (libraries ())
+  )
+)
+
+(jbuild_version 1)
