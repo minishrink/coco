@@ -1,8 +1,12 @@
-let printy str = print_string (Printf.sprintf "\n%s\n" str)
+(* implementation of a deterministic finite state automaton because
+   who doesn't love concrete implementations of abstract machinery *)
 
+(* types are mostly wrappers for FSA tuple members*)
 type symbol = Sym of char
 type alphabet = symbol list
-type transition = (symbol * string)
+type transition = (symbol * string) (* symbol , state_uid of next state *)
+
+(* represent state and automaton as records *)
 type state =
   {
     uid : string ;
@@ -43,11 +47,11 @@ let make_fsa_raw id alpha init fin =
   let initial,final = init,fin in
   { states = [] ; alphabet ; initial ; final }
 
-(* returns bool for "is accepting state?" *)
+(* is current state an accepting state? *)
 let is_final fsa state =
   List.mem state fsa.final
 
-(* check if accepting state has been reached and accept or reject*)
+(* on final input symbol, either accept or reject *)
 let final_result fsa state =
   if is_final fsa state
   then Accepted
@@ -57,7 +61,7 @@ let final_result fsa state =
 exception Illegal_transition
 exception Symbol_not_recognised of symbol
 
-(* exactly as it says on the tin *)
+(* transform string input into char list for easier traversal *)
 let str_to_char_lst str =
   let len = String.length str in
   let rec chrl x =
