@@ -7,8 +7,8 @@ type alphabet = symbol list
 type transition = (symbol * string) (* symbol , state_uid of next state *)
 
 (* represent state and automaton as records
-  TODO: move away from concrete representations of states, perhaps use a hashtbl for transitions *)
-  
+   TODO: move away from concrete representations of states, perhaps use a hashtbl for transitions *)
+
 type state =
   {
     uid : string ;
@@ -91,6 +91,7 @@ let next_state_from_uid fsa st_uid =
     List.find (fun st -> st.uid = st_uid) fsa.states
   with Not_found -> raise Illegal_transition
 
+(* input string -> char list -> Sym list *)
 let format_input str =
   str |> str_to_char_lst |> make_alphabet
 
@@ -105,11 +106,11 @@ let next_state fsa st sym =
 
 (* iterate through input string and return result *)
 let trace_input fsa str =
-  (* input string -> char list -> symbol list *)
   let lst = format_input str in
   let rec run st = function 
     | [] -> if is_final fsa st
-            then Accepted
-            else Rejected
+      then Accepted
+      else Rejected
     | a::b -> run (next_state fsa st a) b
   in try run fsa.initial lst with _ -> Rejected
+
