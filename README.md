@@ -1,4 +1,5 @@
 # Computation & Complexity (COCO)
-### Educational exercise in implementing abstract machinery
-Partly a project to gain more experience using OCaml, partly a chance to play around with theoretical machinery and
-maybe even make something useful, though that's a bit far from the horizon.
+
+### Minimal implementations of formal language automata
+
+This project is an exercise in implementing automata which recognise different classes of formal languages, as specified in the Chomsky hierarchy.

@@ -27,11 +27,13 @@ let states =
   [ ("alpha",st_1) ; ("beta",st_2) ; ("gamma",st_3) ; ("delta",st_4) ; ("epsilon",st_5) ]
   |> List.map
     (fun (uid, transitions) -> make_state uid transitions)
+
 let binary_aut = make_fsa ?states:(Some states) binary (List.hd states) [states |> last |> unbox]
 
 (* ****** *
     tests 
- * ****** *)
+ * ****** 
+    TODO *)
 
 
 (* test assertion for truth *)

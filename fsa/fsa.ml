@@ -8,6 +8,7 @@ type transition = (symbol * string) (* symbol , state_uid of next state *)
 
 (* represent state and automaton as records
   TODO: move away from concrete representations of states, perhaps use a hashtbl for transitions *)
+  
 type state =
   {
     uid : string ;
@@ -112,4 +113,3 @@ let trace_input fsa str =
             else Rejected
     | a::b -> run (next_state fsa st a) b
   in try run fsa.initial lst with _ -> Rejected
-
