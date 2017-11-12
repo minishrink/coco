@@ -1,28 +1,18 @@
-type 'a stack = Lst of 'a list
+type 'a stack = Stk of 'a list
 exception EmptyStack
 
-let make_stack lst = Lst lst
+let make_stack lst = Stk lst
 
 let push x = function
-  | Lst lst -> Lst (x::lst)
+  | Stk lst -> Stk (x::lst)
 
 let stkHd = function
-  | Lst a::b -> a
+  | Stk a::b -> a
   | _ -> raise EmptyStack
 
 let pop = function
-  | Lst (a::b) -> Lst b
+  | Stk (a::b) -> Stk b
   | _ -> raise EmptyStack
-
-let example make_struct add rm () =
-  []
-  |> make_struct
-  |> add "blob"
-  |> add "floop"
-  |> rm
-  |> add "whadup"
-  |> rm
-  |> rm
 
 (****************************
  *********  QUEUES  *********
@@ -39,14 +29,11 @@ let enqueue x = function
       match lst with
       | [] -> [x]
       | a::b -> a::(enq x b)
-    in Que (enq x lst)
+    in lst |> enq x |> make_queue
 
-(* FIXME *)
-let dequeue lst =
-  match lst with
+let dequeue = function
   | Que lst ->
     let deq = function
       | a::b -> b
       | _ -> raise EmptyQueue
-    in Que (deq lst)
-
+    in lst |> deq |> make_queue
