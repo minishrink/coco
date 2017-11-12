@@ -52,12 +52,6 @@ let make_fsa_raw id alpha init fin =
 let is_final fsa state =
   List.mem state fsa.final
 
-(* on final input symbol, either accept or reject *)
-let final_result fsa state =
-  if is_final fsa state
-  then Accepted
-  else Rejected
-
 (* throw this when a transition fails *)
 exception Illegal_transition
 exception Symbol_not_recognised of symbol
@@ -73,10 +67,7 @@ let str_to_char_lst str =
 
 let sym_to_char = function
   | Sym x -> x
-(*| y -> raise (Symbol_not_recognised y)*)
-
-let format_input str =
-  str |> str_to_char_lst |> make_alphabet
+  | y -> raise (Symbol_not_recognised y)
 
 
 (* *************** *
@@ -99,6 +90,9 @@ let next_state_from_uid fsa st_uid =
     List.find (fun st -> st.uid = st_uid) fsa.states
   with Not_found -> raise Illegal_transition
 
+let format_input str =
+  str |> str_to_char_lst |> make_alphabet
+
 (* given fsa, state, symbol -> next state or exn *)
 let next_state fsa st sym =
   (* check symbol belongs to FSA alphabet *)
@@ -111,7 +105,7 @@ let next_state fsa st sym =
 (* iterate through input string and return result *)
 let trace_input fsa str =
   (* input string -> char list -> symbol list *)
-  let lst = str |> str_to_char_lst |> make_alphabet in
+  let lst = format_input str in
   let rec run st = function 
     | [] -> if is_final fsa st
             then Accepted
