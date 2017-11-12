@@ -6,7 +6,8 @@ type symbol = Sym of char
 type alphabet = symbol list
 type transition = (symbol * string) (* symbol , state_uid of next state *)
 
-(* represent state and automaton as records *)
+(* represent state and automaton as records
+  TODO: move away from concrete representations of states, perhaps use a hashtbl for transitions *)
 type state =
   {
     uid : string ;
@@ -111,12 +112,10 @@ let next_state fsa st sym =
 let trace_input fsa str =
   (* input string -> char list -> symbol list *)
   let lst = str |> str_to_char_lst |> make_alphabet in
-  let rec run st lst = (* match sym_lst *)
-    if is_final fsa st
-    then Accepted
-    else
-      match lst with
-      | a::b -> run (next_state fsa st a) b
-      | [] -> Rejected
+  let rec run st = function 
+    | [] -> if is_final fsa st
+            then Accepted
+            else Rejected
+    | a::b -> run (next_state fsa st a) b
   in try run fsa.initial lst with _ -> Rejected
 
