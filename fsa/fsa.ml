@@ -1,11 +1,10 @@
-(* type declarations *)
+
+(*--- type declarations ---*)
+
 type symbol = Sym of char
 type alphabet = symbol list
 type state = St of string
 type result = Accepted | Rejected (* automaton input: string, output: result *)
-
-exception Illegal_transition 
-exception Invalid_input
 
 type automaton =
   {
@@ -15,19 +14,22 @@ type automaton =
     final : state list
   }
 
-(* constructor helpers *)
+exception Illegal_transition 
+exception Invalid_input
+
+(*--- constructor helpers ---*)
 
 let make_alphabet lst = List.map (fun ltr -> Sym ltr) lst
 let make_state str = St str
 
-let make_automaton (alphabet : symbol list) (transitions : (symbol, state * state) Hashtbl.t) (initial : state) (final : state list) =
+let make_automaton ~alphabet ~transitions ~initial ~final =
   { alphabet ; transitions ; initial ; final }
 
 let add_transition fsa ltr src dst =
   let key, value = Sym ltr, (St src, St dst) in
   Hashtbl.add fsa.transitions key value
 
-(* execution logic *)
+(*--- execution logic ---*)
 
 (* Search automaton Hashtbl for next transition on given symbol
    raises Illegal_transition on invalid input or Not_found
