@@ -1,61 +1,48 @@
-(* implementation of a deterministic finite state automaton because
-   who doesn't love concrete implementations of abstract machinery *)
-
-(* types are mostly wrappers for FSA tuple members*)
+(* type declarations *)
 type symbol = Sym of char
 type alphabet = symbol list
-type transition = (symbol * string) (* symbol , state_uid of next state *)
+type state = St of string
+type result = Accepted | Rejected (* automaton input: string, output: result *)
 
-(* represent state and automaton as records
-  TODO: move away from concrete representations of states, perhaps use a hashtbl for transitions *)
-  
-type state =
-  {
-    uid : string ;
-    transitions : transition list ;
-  }
+exception Illegal_transition 
+exception Invalid_input
 
-type fsa = 
+type automaton =
   {
-    mutable states : state list ;
-    alphabet : alphabet ;
-    initial : state ;
+    alphabet : symbol list;
+    mutable transitions : (symbol, state * state) Hashtbl.t; 
+    initial : state;
     final : state list
   }
 
-type result = Rejected | Accepted
+(* constructor helpers *)
 
-(* ******************* *
- * constructor helpers *
- * ******************* *)
+let make_alphabet lst = List.map (fun ltr -> Sym ltr) lst
+let make_state str = St str
 
-(* wrap raw char or string to construct transitions or alphabet *)
-let make_alphabet lst = lst |> List.map (fun x -> Sym x)
-let make_transition chr str = (Sym chr,str)
-let make_trans_set chrlst = List.map (fun (chr,str) -> make_transition chr str) chrlst
-let make_state uid transitions = { uid ; transitions }
+let make_automaton (alphabet : symbol list) (transitions : (symbol, state * state) Hashtbl.t) (initial : state) (final : state list) =
+  { alphabet ; transitions ; initial ; final }
 
-(* make FSA from pre-wrapped arguments *)
-let make_fsa ?states alphabet initial final =
-  let get_states states =
-    match states with
-    | None -> []
-    | Some states -> states in
-  { states = get_states states ; alphabet ; initial ; final }
+let add_transition fsa ltr src dst =
+  let key, value = Sym ltr, (St src, St dst) in
+  Hashtbl.add fsa.transitions key value
 
-(* FSA constructor helper that takes raw input and wraps it *)
-let make_fsa_raw id alpha init fin =
-  let alphabet = alpha |> make_alphabet in
-  let initial,final = init,fin in
-  { states = [] ; alphabet ; initial ; final }
+(* execution logic *)
 
-(* is current state an accepting state? *)
-let is_final fsa state =
-  List.mem state fsa.final
+(* Search automaton Hashtbl for next transition on given symbol
+   raises Illegal_transition on invalid input or Not_found
+   automaton -> symbol -> state -> state *)
+let get_next_state fsa ltr current_state =
+  try
+    match ltr, current_state with
+    | Sym x, St y -> 
+      let transitions = Hashtbl.find_all fsa.transitions ltr in
+      List.assoc current_state transitions
+  with
+  | Not_found -> raise Illegal_transition
+  | _ -> raise Invalid_input
 
-(* throw this when a transition fails *)
-exception Illegal_transition
-exception Symbol_not_recognised of symbol
+let is_final fsa state = List.mem state fsa.final
 
 (* transform string input into char list for easier traversal *)
 let str_to_char_lst str =
@@ -66,50 +53,17 @@ let str_to_char_lst str =
     else []
   in chrl 0
 
-let sym_to_char = function
-  | Sym x -> x
-  | y -> raise (Symbol_not_recognised y)
-
-
-(* *************** *
-   execution logic
- * *************** *)
-
-(* check if a transition is allowed *)
-let valid_state fsa uid =
-  fsa.states
-  |> List.map (fun st -> st.uid)
-  |> List.mem uid
-
-(* give symbol to state, get uid for next state *)
-let next_st_uid st sym =
-  List.assoc sym st.transitions
-
-(* given state uid, get state from FSA *)
-let next_state_from_uid fsa st_uid =
-  try
-    List.find (fun st -> st.uid = st_uid) fsa.states
-  with Not_found -> raise Illegal_transition
-
+(* input string -> char list -> Sym list *)
 let format_input str =
   str |> str_to_char_lst |> make_alphabet
 
-(* given fsa, state, symbol -> next state or exn *)
-let next_state fsa st sym =
-  (* check symbol belongs to FSA alphabet *)
-  if List.mem sym fsa.alphabet
-  then sym
-       |> next_st_uid st
-       |> next_state_from_uid fsa
-  else raise (Symbol_not_recognised sym)
-
-(* iterate through input string and return result *)
-let trace_input fsa str =
-  (* input string -> char list -> symbol list *)
+(* pass in string, return result *)
+let process_string fsa str =
   let lst = format_input str in
-  let rec run st = function 
+  let rec run st = function
     | [] -> if is_final fsa st
-            then Accepted
-            else Rejected
-    | a::b -> run (next_state fsa st a) b
+      then Accepted
+      else Rejected
+    | a::b -> run (get_next_state fsa a st) b
   in try run fsa.initial lst with _ -> Rejected
+
