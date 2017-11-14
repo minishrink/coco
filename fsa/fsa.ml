@@ -13,7 +13,7 @@ type automaton =
     mutable transitions : (symbol, state * state) Hashtbl.t; 
     initial : state;
     final : state list
-   }
+  }
 
 (* constructor helpers *)
 
@@ -57,13 +57,13 @@ let str_to_char_lst str =
 let format_input str =
   str |> str_to_char_lst |> make_alphabet
 
-
 (* pass in string, return result *)
 let process_string fsa str =
   let lst = format_input str in
   let rec run st = function
     | [] -> if is_final fsa st
-            then Accepted
-            else Rejected
+      then Accepted
+      else Rejected
     | a::b -> run (get_next_state fsa a st) b
   in try run fsa.initial lst with _ -> Rejected
+
