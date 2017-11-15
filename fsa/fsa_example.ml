@@ -12,15 +12,15 @@ let [q1,q2,q3,q4] = List.map make_state ["q1";"q2";"q3";"q4"]
 
 let transitions = Hashtbl.create 5
 
-[ one, [ q1,q2 ; q2,q3 ; q3,q3 ]
-; zero, [ q2,q2 ; q3,q4 ]
-]
-|> List.iter
-  (fun sym, state_pair_lst ->
-    state_pair_lst
-    |> List.iter
-      (Hashtbl.add transitions sym)
-  )
+    [ one, [ q1,q2 ; q2,q3 ; q3,q3 ]
+    ; zero, [ q2,q2 ; q3,q4 ]
+    ]
+                  |> List.iter
+                    (fun sym, state_pair_lst ->
+                       state_pair_lst
+                       |> List.iter
+                         (Hashtbl.add transitions sym)
+                    )
 
 (* construct automaton *)
 
@@ -41,6 +41,6 @@ let result_to_string = function
 ]
 |> List.iter
   (fun str -> trace_input fsa
-            |> result_to_string
-            |> print_endline
+              |> result_to_string
+              |> print_endline
   )
