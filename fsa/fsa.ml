@@ -1,5 +1,5 @@
 
-(*--- type declarations ---*)
+(* ---  type declarations --- *)
 
 type symbol = Sym of char
 type alphabet = symbol list
@@ -17,7 +17,7 @@ type automaton =
 exception Illegal_transition 
 exception Invalid_input
 
-(*--- constructor helpers ---*)
+(* ---  constructor helpers --- *)
 
 let make_alphabet lst = List.map (fun ltr -> Sym ltr) lst
 let make_state str = St str
@@ -29,7 +29,7 @@ let add_transition fsa ltr src dst =
   let key, value = St src, (Sym ltr, St dst) in
   Hashtbl.add fsa.transitions key value
 
-(*--- execution logic ---*)
+(* ---  execution logic --- *)
 
 let process_string fsa str =
 
