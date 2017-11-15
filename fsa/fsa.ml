@@ -9,7 +9,7 @@ type result = Accepted | Rejected (* automaton input: string, output: result *)
 type automaton =
   {
     alphabet : symbol list;
-    mutable transitions : (symbol, state * state) Hashtbl.t; 
+    mutable transitions : (state, symbol * state) Hashtbl.t; 
     initial : state;
     final : state list
   }
@@ -26,7 +26,7 @@ let make_automaton ~alphabet ~transitions ~initial ~final =
   { alphabet ; transitions ; initial ; final }
 
 let add_transition fsa ltr src dst =
-  let key, value = Sym ltr, (St src, St dst) in
+  let key, value = St src, (Sym ltr, St dst) in
   Hashtbl.add fsa.transitions key value
 
 (*--- execution logic ---*)
@@ -38,8 +38,8 @@ let get_next_state fsa ltr current_state =
   try
     match ltr, current_state with
     | Sym x, St y -> 
-      let transitions = Hashtbl.find_all fsa.transitions ltr in
-      List.assoc current_state transitions
+      let transitions = Hashtbl.find_all fsa.transitions current_state in
+      List.assoc ltr transitions
   with
   | Not_found -> raise Illegal_transition
   | _ -> raise Invalid_input

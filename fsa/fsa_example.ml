@@ -21,14 +21,15 @@ let result_to_string = function
 (* execution *)
 
 let () =
-  [ (one  , [ q1,q2 ; q2,q3 ; q3,q3 ])
-  ; (zero , [ q2,q2 ; q3,q4         ])
-  ]
+[ q1 , [one,  q2]
+; q2 , [zero, q2 ; one,  q3]
+; q3 , [one, q3  ; zero, q4] 
+] (* no transitions for final state q4 *)
   |> List.iter
-    (fun (sym, state_pair_lst) ->
-       state_pair_lst
+    (fun (st, transition_pair) ->
+       transition_pair
        |> List.iter
-       (Hashtbl.add transitions sym)
+       (Hashtbl.add transitions st)
     );
 
   let print_result str result =
