@@ -9,6 +9,7 @@ type result = Accepted | Rejected (* automaton input: string, output: result *)
 type automaton =
   {
     alphabet : symbol list;
+    (* TODO : switch to map, create one for each symbol *)
     mutable transitions : (state, symbol * state) Hashtbl.t; 
     initial : state;
     final : state list
