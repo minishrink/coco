@@ -33,7 +33,7 @@ let () =
       );
 
     let print_result str result =
-      Printf.printf "\t %s -> %s\n" (result_to_string result) str in
+      Printf.printf "\t %s <- %s\n" (result_to_string result) str in
 
   (* test input strings *)
   [ "101"
