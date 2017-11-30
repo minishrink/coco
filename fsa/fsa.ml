@@ -2,7 +2,6 @@
 (* ---  type declarations --- *)
 
 type symbol = Sym of char
-type alphabet = symbol list
 type state = St of string
 type result = Accepted | Rejected (* automaton input: string, output: result *)
 
