@@ -32,9 +32,9 @@ let add_transition fsa ltr src dst =
 
 let process_string fsa str =
 
-(* Search automaton Hashtbl for next transition on given symbol
-   raises Illegal_transition on invalid input or Not_found
-   automaton -> symbol -> state -> state *)
+  (* Search automaton Hashtbl for next transition on given symbol
+     raises Illegal_transition on invalid input or Not_found
+     automaton -> symbol -> state -> state *)
   let get_next_state fsa ltr current_state =
     try
       match ltr, current_state with
