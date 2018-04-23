@@ -45,12 +45,36 @@ let convert_string_to_symbols (str:string) : DFA.alphabet list =
     end else []
   in conv 0
 
-let _ =
+let get_result str : DFA.result =
+  DFA.run_through (convert_string_to_symbols str) (Nonterminal 0)
+
+type value =
+  | Token of string
+  | Invalid of string
+
+let value_string = function
+  | Token str -> Printf.sprintf "Token(%s)" str
+  | Invalid str -> Printf.sprintf "Invalid(%s)" str
+
+let get_result_token str = match get_result str with
+  | Accepted -> Token str
+  | Rejected -> Invalid str
+
+let test value =
   try
-    setup ();
-    DFA.run_through (convert_string_to_symbols "0.9") (Nonterminal 0)
-    |> DFA.result_string
+    get_result_token value
+    |> value_string
     |> print_endline
   with
   | DFA.Automaton_failure e -> print_endline (DFA.automaton_error_string e)
   | err -> raise err
+
+let _ =
+  setup ();
+  List.iter test
+    [ "0.9"
+    ; "0"
+    ; "1.5"
+    ; "ishouldfail"
+    ; "15.093285"
+    ]
