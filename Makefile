@@ -6,9 +6,13 @@ endif
 
 EXAMPLEDIR=examples
 BUILDDIR=_build/default
+LIBDIR=automata
 
 example: $(EXAMPLEDIR)/number.ml
 	jbuilder build $(EXAMPLEDIR)/number.exe
+
+libs: $(LIBDIR)/fsa.ml
+	jbuilder build $(LIBDIR)/automata.a
 
 run-example: $(EXAMPLEDIR)/number.ml
 	jbuilder build $(EXAMPLEDIR)/number.exe
