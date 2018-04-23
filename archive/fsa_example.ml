@@ -25,15 +25,15 @@ let () =
   ; q2 , [zero, q2 ; one,  q3]
   ; q3 , [one,  q3 ; zero, q4] 
   ] (* no transitions for final state q4 *)
-    |> List.iter
-      (fun (st, transition_pair) ->
-         transition_pair
-         |> List.iter
+  |> List.iter
+    (fun (st, transition_pair) ->
+       transition_pair
+       |> List.iter
          (Hashtbl.add transitions st)
-      );
+    );
 
-    let print_result str result =
-      Printf.printf "\t %s <- %s\n" (result_to_string result) str in
+  let print_result str result =
+    Printf.printf "\t %s <- %s\n" (result_to_string result) str in
 
   (* test input strings *)
   [ "101"
@@ -47,6 +47,6 @@ let () =
   ]
   |> List.iter
     (fun str -> str
-             |> process_string autom
-             |> print_result str
+                |> process_string autom
+                |> print_result str
     )
