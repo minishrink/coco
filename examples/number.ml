@@ -2,6 +2,10 @@ module Num  = struct
   type sym =
     | Int of int
     | Point
+
+  let print_alpha = function
+    | Int i -> Printf.sprintf "Int(%d)" i
+    | Point -> "Point(.)"
 end
 
 module DFA = Fsa.Automaton(Num)
@@ -42,4 +46,11 @@ let convert_string_to_symbols (str:string) : DFA.alphabet list =
   in conv 0
 
 let _ =
-  DFA.run_through (convert_string_to_symbols "0.9") (Nonterminal 0)
+  try
+    setup ();
+    DFA.run_through (convert_string_to_symbols "0.9") (Nonterminal 0)
+    |> DFA.result_string
+    |> print_endline
+  with
+  | DFA.Automaton_failure e -> print_endline (DFA.automaton_error_string e)
+  | err -> raise err

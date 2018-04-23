@@ -3,6 +3,7 @@
 
 module type Alphabet = sig
   type sym
+  val print_alpha : sym -> string
 end
 
 module Automaton (L : Alphabet) = struct
@@ -16,6 +17,11 @@ module Automaton (L : Alphabet) = struct
     | Accepting   of int
     | Failure     of int
 
+  let print_state = function
+    | Nonterminal i -> Printf.sprintf "Nonterminal(%d)" i
+    | Accepting i -> Printf.sprintf "Accepting(%d)" i
+    | Failure i -> Printf.sprintf "Failure(%d)" i
+
   type transition_table = (alphabet, state_id) Hashtbl.t
 
   type state_table = (state_id, transition_table) Hashtbl.t
@@ -28,6 +34,14 @@ module Automaton (L : Alphabet) = struct
     | No_valid_transition_exists of (state_id * alphabet)
 
   exception Automaton_failure of automaton_errors
+  let automaton_error_string = function
+    | Unexpected exn -> raise exn
+    | Internal str -> Printf.sprintf "Internal_error(%s)" str
+    | State_not_in_db state_id -> Printf.sprintf "State_not_in_db(%s)" (print_state state_id)
+    | Transition_already_exists (id, alpha)
+      -> Printf.sprintf "Transition_already_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
+    | No_valid_transition_exists (id, alpha)
+      -> Printf.sprintf "No_valid_transition_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
 
   (** -n-- Mutable values --- **)
 
