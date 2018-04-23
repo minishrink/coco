@@ -61,52 +61,52 @@ module Automaton (L : Alphabet) = struct
     then raise (Automaton_failure (State_not_in_db state))
 
   (* For now, raise an exception to enforce determinism *)
-let add_transition ~(from_state : state_id) ~(with_sym : alphabet) ~(to_state : state_id) =
-  assert_in_db from_state;
-  assert_in_db to_state;
-  let transitions = Hashtbl.find state_db from_state in
-  if Hashtbl.mem transitions with_sym
-  then raise (Automaton_failure (Transition_already_exists (from_state, with_sym)))
-  else Hashtbl.add transitions with_sym to_state
+  let add_transition ~(from_state : state_id) ~(with_sym : alphabet) ~(to_state : state_id) =
+    assert_in_db from_state;
+    assert_in_db to_state;
+    let transitions = Hashtbl.find state_db from_state in
+    if Hashtbl.mem transitions with_sym
+    then raise (Automaton_failure (Transition_already_exists (from_state, with_sym)))
+    else Hashtbl.add transitions with_sym to_state
 
-let get_state_transitions_with_id id =
-  try
-    Hashtbl.find state_db id
-  with Not_found -> raise (Automaton_failure (State_not_in_db id))
+  let get_state_transitions_with_id id =
+    try
+      Hashtbl.find state_db id
+    with Not_found -> raise (Automaton_failure (State_not_in_db id))
 
-let get_state_from_transition (table : transition_table) with_sym =
-  try
-    Hashtbl.find table with_sym
-  with
-  | Automaton_failure(e) as err -> raise err
-  | exn -> raise exn
+  let get_state_from_transition (table : transition_table) with_sym =
+    try
+      Hashtbl.find table with_sym
+    with
+    | Automaton_failure(e) as err -> raise err
+    | exn -> raise exn
 
-let get_next_state ~from ~with_sym =
-  try
-    let transitions = get_state_transitions_with_id from in
-    get_state_from_transition transitions with_sym
-  with
-  | Not_found -> raise (Automaton_failure (No_valid_transition_exists (from, with_sym)))
-  | Automaton_failure(e) as err -> raise err
+  let get_next_state ~from ~with_sym =
+    try
+      let transitions = get_state_transitions_with_id from in
+      get_state_from_transition transitions with_sym
+    with
+    | Not_found -> raise (Automaton_failure (No_valid_transition_exists (from, with_sym)))
+    | Automaton_failure(e) as err -> raise err
 
-type result = Accepted | Rejected
-let result_string = function
-  | Accepted -> "ACCEPTED"
-  | Rejected -> "REJECTION"
+  type result = Accepted | Rejected
+  let result_string = function
+    | Accepted -> "ACCEPTED"
+    | Rejected -> "REJECTION"
 
-let run_through (input : alphabet list) (from_state : state_id) =
-  let rec run (from : state_id) = function
-    | a::b ->
-      begin match (get_next_state ~from ~with_sym:a) with
-        | Failure _ -> Rejected
-        | (Nonterminal _) as state -> run state b
-        | Accepting _ -> Accepted
-      end
-    | [] ->
-      begin match from with
-        | Accepting _ -> Accepted
-        | (Nonterminal _ | Failure _) -> Rejected
-      end
-  in
-  run from_state input
+  let run_through (input : alphabet list) (from_state : state_id) =
+    let rec run (from : state_id) = function
+      | a::b ->
+        begin match (get_next_state ~from ~with_sym:a) with
+          | Failure _ -> Rejected
+          | (Nonterminal _) as state -> run state b
+          | Accepting _ -> Accepted
+        end
+      | [] ->
+        begin match from with
+          | Accepting _ -> Accepted
+          | (Nonterminal _ | Failure _) -> Rejected
+        end
+    in
+    run from_state input
 end
