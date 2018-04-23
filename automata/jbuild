@@ -1,0 +1,11 @@
+
+(library
+  (
+    (name automata)
+    (public_name automata)
+    (wrapped false)
+    (modules (fsa))
+    (libraries ())
+  )
+)
+
