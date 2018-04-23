@@ -94,5 +94,5 @@ let run_through (input : alphabet list) (from_state : state_id) =
         | (Nonterminal _ | Failure _) -> Rejected
       end
   in
-  run from_state input |> result_string
+  run from_state input
 end
