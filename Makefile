@@ -2,7 +2,7 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-.PHONY: clean test example run-example libs reindent
+.PHONY: clean test libs reindent
 
 EXAMPLEDIR=examples
 BUILDDIR=_build/default
@@ -15,13 +15,6 @@ clean:
 test: $(TESTDIR)/test.ml
 	jbuilder build test/test.exe
 	./$(BUILDDIR)/$(TESTDIR)/test.exe
-
-example: $(EXAMPLEDIR)/number.ml
-	jbuilder build $(EXAMPLEDIR)/number.exe
-
-run-example: $(EXAMPLEDIR)/number.ml
-	jbuilder build $(EXAMPLEDIR)/number.exe
-	./$(BUILDDIR)/$(EXAMPLEDIR)/number.exe
 
 libs: $(LIBDIR)/fsa.ml
 	jbuilder build $(LIBDIR)/automata.a
