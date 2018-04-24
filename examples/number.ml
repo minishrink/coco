@@ -66,15 +66,10 @@ let test value =
     |> value_string
     |> print_endline
   with
-  | DFA.Automaton_failure e -> print_endline (DFA.automaton_error_string e)
+  | DFA.Automaton_failure e ->
+    Printf.printf "\nAUTOMATON_FAILURE [ %s ]\n" (DFA.automaton_error_string e)
   | err -> raise err
 
 let _ =
   setup ();
   List.iter test
-    [ "0.9"
-    ; "0"
-    ; "1.5"
-    ; "ishouldfail"
-    ; "15.093285"
-    ]
