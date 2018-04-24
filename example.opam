@@ -1,0 +1,15 @@
+
+
+opam-version: "2.0"
+
+maintainer: "Akanksha Mathur"
+authors: [ "Akanksha Mathur" ]
+
+homepage: "https://github.com/minishrink/coco"
+bug-reports: "https://github.com/minishrink/coco/issues"
+dev-repo: "https://github.com/minishrink/coco"
+
+depends:
+[ "jbuilder"
+  "alcotest"
+]
