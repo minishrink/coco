@@ -4,6 +4,12 @@
 module type Alphabet = sig
   type sym
   val print_alpha : sym -> string
+  val convert_to_symbol_opt : char -> sym option
+  type token
+  type token_flag
+  val token_of_flag : token_flag -> string -> token
+  val token_flag_string : token_flag -> string
+  val token_string : token -> string
 end
 
 module Automaton (L : Alphabet) = struct
@@ -14,12 +20,12 @@ module Automaton (L : Alphabet) = struct
 
   type state_id =
     | Nonterminal of int
-    | Accepting   of int
+    | Accepting   of (int * L.token_flag)
     | Failure     of int
 
   let print_state = function
     | Nonterminal i -> Printf.sprintf "Nonterminal(%d)" i
-    | Accepting i -> Printf.sprintf "Accepting(%d)" i
+    | Accepting (i,flag) -> Printf.sprintf "Accepting(%d : %s)" i (L.token_flag_string flag)
     | Failure i -> Printf.sprintf "Failure(%d)" i
 
   type transition_table = (alphabet, state_id) Hashtbl.t
@@ -34,6 +40,7 @@ module Automaton (L : Alphabet) = struct
     | No_valid_transition_exists of (state_id * alphabet)
 
   exception Automaton_failure of automaton_errors
+
   let automaton_error_string = function
     | Unexpected exn -> raise exn
     | Internal str -> Printf.sprintf "Internal_error(%s)" str
@@ -43,7 +50,7 @@ module Automaton (L : Alphabet) = struct
     | No_valid_transition_exists (id, alpha)
       -> Printf.sprintf "No_valid_transition_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
 
-  (** -n-- Mutable values --- **)
+  (** --- Mutable values --- **)
 
   let state_db : state_table = Hashtbl.create 10
 
@@ -69,6 +76,9 @@ module Automaton (L : Alphabet) = struct
     then raise (Automaton_failure (Transition_already_exists (from_state, with_sym)))
     else Hashtbl.add transitions with_sym to_state
 
+
+  (** State transition logic **)
+
   let get_state_transitions_with_id id =
     try
       Hashtbl.find state_db id
@@ -89,24 +99,59 @@ module Automaton (L : Alphabet) = struct
     | Not_found -> raise (Automaton_failure (No_valid_transition_exists (from, with_sym)))
     | Automaton_failure(e) as err -> raise err
 
-  type result = Accepted | Rejected
+  (** Result printing and interpreting logic **)
+
+  type result =
+    | Accepted of L.token_flag (* indicate token type of accepting state *)
+    | Rejected
+
   let result_string = function
-    | Accepted -> "ACCEPTED"
-    | Rejected -> "REJECTION"
+    | Accepted _ -> "[ ACCEPTED ]"
+    | Rejected   -> "[ REJECTED ]"
+
+  let convert_string_to_symbols (str:string) : alphabet list =
+    let len = String.length str in
+    let rec conv i =
+      if i < len then begin
+        match L.convert_to_symbol_opt str.[i] with
+        | Some sym -> sym::(conv (i+1))
+        | None     ->      (conv (i+1))
+      end else []
+    in conv 0
 
   let run_through (input : alphabet list) (from_state : state_id) =
     let rec run (from : state_id) = function
       | a::b ->
         begin match (get_next_state ~from ~with_sym:a) with
           | Failure _ -> Rejected
-          | (Nonterminal _) as state -> run state b
-          | Accepting _ -> Accepted
+          | (Nonterminal _ | Accepting _) as state -> run state b
         end
       | [] ->
         begin match from with
-          | Accepting _ -> Accepted
+          |  Accepting (_, flag)        -> Accepted flag
           | (Nonterminal _ | Failure _) -> Rejected
         end
     in
     run from_state input
+
+  let get_result str : result =
+    run_through
+      L.(convert_string_to_symbols str)
+      (Nonterminal 0)
+
+  type value =
+    | Token of L.token
+    | Invalid of string
+
+  let value_string = function
+    | Token tkn -> Printf.sprintf "Token(%s)" L.(token_string tkn)
+    | Invalid str -> Printf.sprintf "Invalid(%s)" str
+
+  let value_of_result str = match get_result str with
+    | Accepted flag -> Token L.(token_of_flag flag str)
+    | Rejected -> Invalid str
+
+  let lex_token str = match value_of_result str with
+    | Token tkn -> tkn
+    | Invalid _ -> failwith "not a token"
 end
