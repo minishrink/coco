@@ -10,4 +10,5 @@ dev-repo: "https://github.com/minishrink/coco"
 
 depends:
 [ "jbuilder"
+  "alcotest"
 ]
