@@ -5,6 +5,7 @@ module type Alphabet = sig
   type sym
   val print_alpha : sym -> string
   val convert_to_symbol_opt : char -> sym option
+
   type token
   type token_flag
   val token_of_flag : token_flag -> string -> token
@@ -24,13 +25,9 @@ module Automaton (L : Alphabet) = struct
     | Failure     of int
 
   let print_state = function
-    | Nonterminal i -> Printf.sprintf "Nonterminal(%d)" i
+    | Nonterminal i      -> Printf.sprintf "Nonterminal(%d)" i
     | Accepting (i,flag) -> Printf.sprintf "Accepting(%d : %s)" i (L.token_flag_string flag)
-    | Failure i -> Printf.sprintf "Failure(%d)" i
-
-  type transition_table = (alphabet, state_id) Hashtbl.t
-
-  type state_table = (state_id, transition_table) Hashtbl.t
+    | Failure i          -> Printf.sprintf "Failure(%d)" i
 
   type automaton_errors =
     | Unexpected of exn
@@ -43,15 +40,19 @@ module Automaton (L : Alphabet) = struct
 
   let automaton_error_string = function
     | Unexpected exn -> raise exn
-    | Internal str -> Printf.sprintf "Internal_error(%s)" str
-    | State_not_in_db state_id -> Printf.sprintf "State_not_in_db(%s)" (print_state state_id)
-    | Transition_already_exists (id, alpha)
-      -> Printf.sprintf "Transition_already_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
-    | No_valid_transition_exists (id, alpha)
-      -> Printf.sprintf "No_valid_transition_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
+    | Internal str
+      -> Printf.sprintf "Internal_error(%s)" str
+    | State_not_in_db state_id ->
+      Printf.sprintf "State_not_in_db(%s)" (print_state state_id)
+    | Transition_already_exists (id, alpha) ->
+      Printf.sprintf "Transition_already_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
+    | No_valid_transition_exists (id, alpha) ->
+      Printf.sprintf "No_valid_transition_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
 
   (** --- Mutable values --- **)
 
+  type transition_table = (alphabet, state_id) Hashtbl.t
+  type state_table = (state_id, transition_table) Hashtbl.t
   let state_db : state_table = Hashtbl.create 10
 
   (** --- Helper functions --- **)
@@ -109,7 +110,7 @@ module Automaton (L : Alphabet) = struct
     | Accepted _ -> "[ ACCEPTED ]"
     | Rejected   -> "[ REJECTED ]"
 
-  let convert_string_to_symbols (str:string) : alphabet list =
+  let convert_string_to_symbols str : alphabet list =
     let len = String.length str in
     let rec conv i =
       if i < len then begin
@@ -124,7 +125,9 @@ module Automaton (L : Alphabet) = struct
       | a::b ->
         begin match (get_next_state ~from ~with_sym:a) with
           | Failure _ -> Rejected
-          | (Nonterminal _ | Accepting _) as state -> run state b
+          | Nonterminal _
+          (** TODO does this work? **)
+          | Accepting _ as state -> run state b
         end
       | [] ->
         begin match from with
