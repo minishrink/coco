@@ -1,11 +1,14 @@
 
+module A = Alcotest
 module DFA = Number.DFA
 module N = Number
 
 module Testable = struct
-  let result_token = Alcotest.testable (Fmt.of_to_string N.Num.token_string) (=)
-  let result = Alcotest.testable (Fmt.of_to_string DFA.result_string) (=)
-  let final_state = Alcotest.testable (Fmt.of_to_string DFA.print_state) (=)
+  let testable printer_fn = A.testable (Fmt.of_to_string printer_fn) (=)
+
+  let result       = testable DFA.result_string
+  let final_state  = testable DFA.print_state
+  let result_token = testable N.Num.token_string
 end
 
 let test_with_debugging test =
@@ -16,12 +19,12 @@ let test_with_debugging test =
     Printf.printf "\nAUTOMATON_FAILURE [ %s ]\n" (DFA.automaton_error_string e)
 
 let check_accepted expected actual =
-  Alcotest.check Testable.result_token
+  A.check Testable.result_token
     "Check for acceptance"
     expected actual
 
 let check_rejected actual =
-  Alcotest.check Testable.result
+  A.check Testable.result
     "Check for rejection"
     DFA.Rejected actual
 
@@ -38,8 +41,9 @@ let test_accepted_values () =
 
 let test_rejected_values () =
   List.iter
-    (fun input -> test_with_debugging
-        (fun () -> input |> DFA.get_result |> check_rejected)
+    (fun input ->
+       test_with_debugging
+         (fun () -> input |> DFA.get_result |> check_rejected)
     )
     [ "."
     ; "92."
