@@ -36,8 +36,6 @@ module Automaton (L : Alphabet) = struct
     | Transition_already_exists of (state_id * alphabet)
     | No_valid_transition_exists of (state_id * alphabet)
 
-  exception Automaton_failure of automaton_errors
-
   let automaton_error_string = function
     | Unexpected exn -> raise exn
     | Internal str
@@ -48,6 +46,9 @@ module Automaton (L : Alphabet) = struct
       Printf.sprintf "Transition_already_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
     | No_valid_transition_exists (id, alpha) ->
       Printf.sprintf "No_valid_transition_exists(%s, %s)" (print_state id) (L.print_alpha alpha)
+
+  exception Automaton_failure of automaton_errors
+  let fsa_exn err = raise (Automaton_failure err)
 
   (** --- Mutable values --- **)
 
@@ -66,7 +67,7 @@ module Automaton (L : Alphabet) = struct
 
   let assert_in_db state =
     if not (Hashtbl.mem state_db state)
-    then raise (Automaton_failure (State_not_in_db state))
+    then fsa_exn (State_not_in_db state)
 
   (* For now, raise an exception to enforce determinism *)
   let add_transition ~(from_state : state_id) ~(with_sym : alphabet) ~(to_state : state_id) =
@@ -74,7 +75,7 @@ module Automaton (L : Alphabet) = struct
     assert_in_db to_state;
     let transitions = Hashtbl.find state_db from_state in
     if Hashtbl.mem transitions with_sym
-    then raise (Automaton_failure (Transition_already_exists (from_state, with_sym)))
+    then fsa_exn (Transition_already_exists (from_state, with_sym))
     else Hashtbl.add transitions with_sym to_state
 
 
@@ -83,7 +84,7 @@ module Automaton (L : Alphabet) = struct
   let get_state_transitions_with_id id =
     try
       Hashtbl.find state_db id
-    with Not_found -> raise (Automaton_failure (State_not_in_db id))
+    with Not_found -> fsa_exn (State_not_in_db id)
 
   let get_state_from_transition (table : transition_table) with_sym =
     try
@@ -97,7 +98,7 @@ module Automaton (L : Alphabet) = struct
       let transitions = get_state_transitions_with_id from in
       get_state_from_transition transitions with_sym
     with
-    | Not_found -> raise (Automaton_failure (No_valid_transition_exists (from, with_sym)))
+    | Not_found -> fsa_exn (No_valid_transition_exists (from, with_sym))
     | Automaton_failure(e) as err -> raise err
 
   (** Result printing and interpreting logic **)
