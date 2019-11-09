@@ -1,0 +1,4 @@
+(executable
+ (name test)
+ (modules test_number test)
+ (libraries alcotest automata example))

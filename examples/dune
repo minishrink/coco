@@ -1,0 +1,6 @@
+(library
+ (name example)
+ (public_name example)
+ (modules number)
+ (wrapped false)
+ (libraries automata))

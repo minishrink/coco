@@ -10,6 +10,6 @@ bug-reports: "https://github.com/minishrink/coco/issues"
 dev-repo: "https://github.com/minishrink/coco"
 
 depends:
-[ "jbuilder"
+[ "dune"
   "alcotest"
 ]
