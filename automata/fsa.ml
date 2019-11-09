@@ -90,7 +90,7 @@ module Automaton (L : Alphabet) = struct
     try
       Hashtbl.find table with_sym
     with
-    | Automaton_failure(e) as err -> raise err
+    | Automaton_failure(_) as err -> raise err
     | exn -> raise exn
 
   let get_next_state ~from ~with_sym =
@@ -99,7 +99,7 @@ module Automaton (L : Alphabet) = struct
       get_state_from_transition transitions with_sym
     with
     | Not_found -> fsa_exn (No_valid_transition_exists (from, with_sym))
-    | Automaton_failure(e) as err -> raise err
+    | Automaton_failure(_) as err -> raise err
 
   (** Result printing and interpreting logic **)
 
@@ -127,7 +127,7 @@ module Automaton (L : Alphabet) = struct
         begin match (get_next_state ~from ~with_sym:a) with
           | Failure _ -> Rejected
           | Nonterminal _
-          (** TODO does this work? **)
+          (* TODO does this work? *)
           | Accepting _ as state -> run state b
         end
       | [] ->
@@ -140,7 +140,7 @@ module Automaton (L : Alphabet) = struct
 
   let get_result str : result =
     run_through
-      L.(convert_string_to_symbols str)
+      (convert_string_to_symbols str)
       (Nonterminal 0)
 
   type value =
