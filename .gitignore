@@ -3,3 +3,4 @@
 .cmx
 .mly
 .exe
+_build/*
