@@ -2,8 +2,8 @@
 
 opam-version: "2.0"
 
-maintainer: "Akanksha Mathur"
-authors: [ "Akanksha Mathur" ]
+maintainer: "minishrink"
+authors: [ "minishrink" ]
 
 homepage: "https://github.com/minishrink/coco"
 bug-reports: "https://github.com/minishrink/coco/issues"
