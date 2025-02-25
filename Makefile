@@ -14,7 +14,7 @@ clean:
 	dune clean
 
 test: $(TESTDIR)/test.ml
-	dune build test/test.exe
+	dune build $(TESTDIR)/test.exe
 	./$(BUILDDIR)/$(TESTDIR)/test.exe
 
 libs: $(LIBDIR)/fsa.ml
