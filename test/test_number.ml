@@ -1,7 +1,7 @@
 
 module A = Alcotest
-module DFA = Number.DFA
 module N = Number
+module DFA = N.DFA
 
 module Testable = struct
   let testable printer_fn = A.testable (Fmt.of_to_string printer_fn) (=)
